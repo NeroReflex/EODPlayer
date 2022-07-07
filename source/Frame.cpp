@@ -2,6 +2,16 @@
 
 static const Frame::DeallocatorFunctionType defaultDeallocFn = [](void*) {};
 
+size_t Frame::getPixelSizeInBytes(PixelFormat pf) noexcept {
+    switch (pf) {
+        case Frame::PixelFormat::RGBA64:
+            return sizeof(uint16_t) * 4;
+    }
+
+    // this MUST NOT happend
+    return 0;
+}
+
 Frame::Frame(PixelFormat pf, uint32_t width, uint32_t height) noexcept
  : m_PixelFormat(pf),
  m_Width(width),
@@ -63,15 +73,10 @@ void Frame::storeFrameData(
     const std::function<void(void*)>& fillerFn
 ) noexcept {
     // decide the pixel size (in bytes)
-    size_t pixelSize = 0;
-    switch (getPixelFormat()) {
-        case Frame::PixelFormat::RGBA:
-            pixelSize = 1;
-            break;
-    }
+    size_t pixelSize = getPixelSizeInBytes(getPixelFormat());
 
     // allocate bytes on the heap to store the data
-    m_RawBuffer = allocatorFn(pixelSize);
+    m_RawBuffer = allocatorFn(pixelSize * getWidth() * getHeight());
 
     // store the memory deallocator function so that it can be called on the destructor
     m_DeallocatorFn = deallocatorFn;

@@ -24,8 +24,19 @@ public:
     typedef std::function<void(void*)>  FrameFillerFunctionType;
 
     enum class PixelFormat {
-        RGBA
+        RGBA64, //a pixel is a unt16_t[4]
     };
+
+    /**
+     * @brief Get the size of a pixel (in bytes)
+     * 
+     * Helper static function that given a pixel format return the dimensiont in bytes
+     * of a pixel of the given format.
+     * 
+     * @param pf the pixel format
+     * @return size_t number of bytes required to store a pixel in the specified format
+     */
+    static size_t getPixelSizeInBytes(PixelFormat pf) noexcept;
 
     /**
      * @brief Construct a Frame object with the specified pixel format

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Frame.h"
 #include "BufferedFrameOutputDevice.h"
 
 /**
@@ -18,6 +17,9 @@
  * 
  * Playback is done emitting frames (objects of type Frame) with actual data inside them,
  * this means that allocator and deallocator callback must also be provided.
+ * 
+ * A video decoder is not meant to be an object shared between threads: is has to be implemented as
+ * its public methods are called by the creating thread and it MUST be used that way.
  */
 class Decoder {
 
@@ -73,6 +75,8 @@ public:
      * 
      */
     virtual void play() noexcept = 0;
+
+    virtual void stop() noexcept = 0;
 
 protected:
     /**

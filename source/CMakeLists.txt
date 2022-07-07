@@ -7,6 +7,7 @@ add_executable(
     Decoder.cpp
     Frame.cpp
     FFMPEGDecoder.cpp
+    FakeBufferedFrameOutputDevice.cpp
     main.cpp
 )
 
