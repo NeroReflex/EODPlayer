@@ -1,8 +1,7 @@
 #include "FakeBufferedFrameOutputDevice.h"
 
 FakeBufferedFrameOutputDevice::FakeBufferedFrameOutputDevice(BufferedFrameOutputDevice::FrameCountType frameCount) noexcept
- : BufferedFrameOutputDevice(frameCount),
- m_Semaphore(MaxEnqueuedFrames) {
+ : BufferedFrameOutputDevice(frameCount) {
 
 }
 
@@ -11,18 +10,20 @@ FakeBufferedFrameOutputDevice::~FakeBufferedFrameOutputDevice() {
 }
 
 void FakeBufferedFrameOutputDevice::enqueueFrame(Frame&& frame) noexcept {
-    this->m_Frames.emplace_back(std::move(frame));
+    //std::cout << "Frame enqueued, width: " << frame.getWidth() << ", height: " << frame.getHeight() << "";
 
-    m_Semaphore.release();
+    this->m_Frames.push_back(std::move(frame));
+
 }
 
 void FakeBufferedFrameOutputDevice::exec() noexcept {
     while (true) {
-        m_Semaphore.acquire();
+        auto possibly_frame = m_Frames.pop_front();
+        if (possibly_frame.has_value()) {
+            //std::cout << "got a frame!" << std::endl;
+        } else {
+            //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
 
-        auto frame = std::move(m_Frames.front());
-        m_Frames.pop_front();
-
-        std::cout << "got a frame!" << std::endl;
     }
 }

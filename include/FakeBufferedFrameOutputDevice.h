@@ -2,8 +2,7 @@
 
 #include "BufferedFrameOutputDevice.h"
 
-#include <deque>
-#include <semaphore>
+#include "DequeHM.h"
 
 class FakeBufferedFrameOutputDevice : public BufferedFrameOutputDevice {
 
@@ -17,9 +16,5 @@ public:
     void exec() noexcept;
 
 private:
-    static constexpr std::ptrdiff_t MaxEnqueuedFrames = 512;
-
-    std::counting_semaphore<MaxEnqueuedFrames> m_Semaphore;
-
-    std::deque<Frame> m_Frames;
+    DequeHM<Frame> m_Frames;
 };

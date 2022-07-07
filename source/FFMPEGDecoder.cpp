@@ -3,6 +3,9 @@
 // for memcpy
 #include <cstring>
 
+#include <chrono>
+using namespace std::chrono;
+
 // ffmpeg
 extern "C" {
 #include <libavutil/avstring.h>
@@ -321,6 +324,10 @@ void FFMPEGDecoder::play() noexcept {
 
             i = 0;
             uint32_t frame_index = 0;
+
+            auto start = high_resolution_clock::now();
+            
+
             while ((av_read_frame(pFormatCtx, pPacket) >= 0) && (!m_ShouldClose))  // [14]
             {
                 // Is this a packet from the video stream?
@@ -381,6 +388,12 @@ void FFMPEGDecoder::play() noexcept {
                 // https://lists.ffmpeg.org/pipermail/ffmpeg-cvslog/2015-October/094920.html
                 av_packet_unref(pPacket);
             }
+
+            auto stop = high_resolution_clock::now();
+
+            auto duration = duration_cast<seconds>(stop - start);
+
+            std::cout << "Decoding frames and making them arrive at the framebuffer took " << duration.count() << "s" << std::endl;
 
             /**
              * Cleanup.
