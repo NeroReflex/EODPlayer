@@ -70,6 +70,12 @@ void Frame::storeFrameData(
             break;
     }
 
+    // allocate bytes on the heap to store the data
     m_RawBuffer = allocatorFn(pixelSize);
+
+    // store the memory deallocator function so that it can be called on the destructor
     m_DeallocatorFn = deallocatorFn;
+
+    // allows the caller to fill the allocated buffer with pixel data in the specified format 
+    fillerFn(m_RawBuffer);
 }

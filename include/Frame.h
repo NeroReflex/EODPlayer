@@ -21,6 +21,7 @@ class Frame {
 public:
     typedef std::function<void*(size_t)>  AllocatorFunctionType;
     typedef std::function<void(void*)>  DeallocatorFunctionType;
+    typedef std::function<void(void*)>  FrameFillerFunctionType;
 
     enum class PixelFormat {
         RGBA
@@ -65,12 +66,14 @@ public:
     /**
      * @brief 
      * 
+     * @param allocatorFn this is the function that will be called synchronously (inside the method call) that is resposible for allocating the specified amount of bytes on the heap
+     * @param deallocatorFn this is the function that will be called by the object destructor so it's importat to think about lifetime of captures
      * @param fillerFn this is the function that will be called synchronously (inside the method call) that is resposible for filling the raw buffer
      */
     void storeFrameData(
         const AllocatorFunctionType& allocatorFn,
         const DeallocatorFunctionType& deallocatorFn,
-        const std::function<void(void*)>& fillerFn
+        const FrameFillerFunctionType& fillerFn
     ) noexcept;
 
     
