@@ -113,6 +113,10 @@ void DequeHM<T, Allocator>::push_front(T&& input) noexcept {
 template <typename T, typename Allocator>
 std::optional<T> DequeHM<T, Allocator>::pop_front() noexcept {
 
+	// allocator
+	using node_alloc_t = typename std::allocator_traits<Allocator>::template rebind_alloc<Node>;
+	node_alloc_t node_alloc;
+
 	std::lock_guard<std::mutex> guard(front_mutex);
 
 	std::optional<T> result;
@@ -120,7 +124,7 @@ std::optional<T> DequeHM<T, Allocator>::pop_front() noexcept {
 		result.emplace(std::move(first_node->val));
 		//result = first_node->val;
 		Node* new_first_node = first_node->next;
-		delete(first_node);
+		node_alloc.destroy(first_node);
 		first_node = new_first_node;
 		deque_size--;
 	}
@@ -131,6 +135,10 @@ std::optional<T> DequeHM<T, Allocator>::pop_front() noexcept {
 template <typename T, typename Allocator>
 std::optional<T> DequeHM<T, Allocator>::pop_back() noexcept {
 
+	// allocator
+	using node_alloc_t = typename std::allocator_traits<Allocator>::template rebind_alloc<Node>;
+	node_alloc_t node_alloc;
+
 	std::lock_guard<std::mutex> guard(back_mutex);
 	
 	std::optional<T> result;
@@ -138,7 +146,7 @@ std::optional<T> DequeHM<T, Allocator>::pop_back() noexcept {
 		//result = std::move(last_node->val);
 		result.emplace(std::move(last_node->val));
 		Node* new_last_node = last_node->prev;
-		delete(last_node);
+		node_alloc.destroy(last_node);
 		last_node = new_last_node;
 		deque_size--;
 	}
@@ -161,12 +169,16 @@ std::atomic_bool DequeHM<T, Allocator>::is_empty() noexcept {
 
 template <typename T, typename Allocator>
 DequeHM<T, Allocator>::~DequeHM() noexcept {
+	// allocator
+	using node_alloc_t = typename std::allocator_traits<Allocator>::template rebind_alloc<Node>;
+	node_alloc_t node_alloc;
+	
 	// Cleaning node's chain if not empty
 	if (deque_size > 0) {
 		Node* node = first_node;
 		while (node != nullptr) {
 			Node* nextNode = node->next;
-			delete(node);
+			node_alloc.destroy(node);
 			node = nextNode;
 		}
 	}
