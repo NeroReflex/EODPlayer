@@ -1,6 +1,8 @@
 #pragma once
+
 #include <mutex>
 #include <atomic>
+#include <optional>
 
 template <typename T, typename Allocator = std::allocator<T>>
 class DequeHM {
@@ -42,11 +44,17 @@ DequeHM<T, Allocator>::DequeHM() noexcept : deque_size(0) {}
 template <typename T, typename Allocator>
 void DequeHM<T, Allocator>::push_back(T&& input) noexcept {
 
+	// allocator
+	using node_alloc_t = typename std::allocator_traits<Allocator>::template rebind_alloc<Node>;
+	node_alloc_t node_alloc;
+
+	// allocate and call the move constructor
+	auto new_node = node_alloc.allocate(1);
+	using traits_t = std::allocator_traits<decltype(node_alloc)>;
+	traits_t::construct(node_alloc, new_node, std::move(input));
+
 	std::lock_guard<std::mutex> guard(back_mutex);
 	
-    
-
-	Node* new_node = new Node(std::move(input));
 	deque_size++;
 
 	if (first_node == nullptr) {
@@ -70,10 +78,18 @@ void DequeHM<T, Allocator>::push_back(T&& input) noexcept {
 
 template <typename T, typename Allocator>
 void DequeHM<T, Allocator>::push_front(T&& input) noexcept {
+	
+	// allocator
+	using node_alloc_t = typename std::allocator_traits<Allocator>::template rebind_alloc<Node>;
+	node_alloc_t node_alloc;
+
+	// allocate and call the move constructor
+	auto new_node = node_alloc.allocate(1);
+	using traits_t = std::allocator_traits<decltype(node_alloc)>;
+	traits_t::construct(node_alloc, new_node, std::move(input));
 
 	std::lock_guard<std::mutex> guard(front_mutex);
-
-	Node* new_node = new Node(std::move(input));
+	
 	deque_size++;
 	if (first_node == nullptr) {
 		

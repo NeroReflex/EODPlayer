@@ -38,6 +38,7 @@ int main(int argc, char * argv[])
     FFMPEGDecoder decoder(
         debugOutput,
         [&](size_t sz) -> void* {
+            /*
             assert(sz <= sizeInBytesOfLargestFrame);
 
             assert(!fullHDFreeFramesMemory.empty());
@@ -45,9 +46,11 @@ int main(int argc, char * argv[])
             auto result = fullHDFreeFramesMemory.front();
             fullHDFreeFramesMemory.pop();
             return result;
+            */ return malloc(sz);
         },
         [&](void* mem) {
-            fullHDFreeFramesMemory.push(mem);
+            //fullHDFreeFramesMemory.push(mem);
+            free(mem);
         }
     );
 
